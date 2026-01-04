@@ -7,3 +7,5 @@ class ProfileState(StatesGroup):
     delivery = State()
     address = State()
     preview = State()
+
+    edit_field = State()

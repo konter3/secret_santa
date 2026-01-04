@@ -1,8 +1,10 @@
-﻿from aiogram import Router, F
+﻿# handlers/profile.py
+from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from keyboards.profile import profile_actions
 from keyboards.main import main_menu
+from keyboards.cancel import cancel_menu
 from db.database import save_profile, get_profile, delete_profile
 from states.profile import ProfileState
 from utils.text import CANCEL_TEXT
@@ -31,7 +33,7 @@ async def main_menu_cb(cb: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == "create_profile")
 async def start_profile(cb: CallbackQuery, state: FSMContext):
     await state.clear()
-    await cb.message.answer("Введите ваше имя:")
+    await cb.message.answer("Введите ваше имя:", reply_markup=cancel_menu())
     await state.set_state(ProfileState.name)
 
 @router.message(ProfileState.name)
@@ -43,9 +45,9 @@ async def step_name(message: Message, state: FSMContext):
         return await message.answer("❌ Действие отменено", reply_markup=kb)
 
     if not message.text:
-        return await message.answer("❗ Только текст")
+        return await message.answer("❗ Только текст", reply_markup=cancel_menu())
     await state.update_data(name=message.text)
-    await message.answer("Что бы вы хотели получить?")
+    await message.answer("Что бы вы хотели получить?", reply_markup=cancel_menu())
     await state.set_state(ProfileState.wishes)
 
 @router.message(ProfileState.wishes)
@@ -56,9 +58,9 @@ async def step_wishes(message: Message, state: FSMContext):
         kb = main_menu(has_profile=bool(profile), distributed=False)
         return await message.answer("❌ Действие отменено", reply_markup=kb)
     if not message.text:
-        return await message.answer("❗ Только текст")
+        return await message.answer("❗ Только текст", reply_markup=cancel_menu())
     await state.update_data(wishes=message.text)
-    await message.answer("Что НЕ хотели бы получить?")
+    await message.answer("Что НЕ хотели бы получить?", reply_markup=cancel_menu())
     await state.set_state(ProfileState.dislikes)
 
 @router.message(ProfileState.dislikes)
@@ -69,9 +71,9 @@ async def step_dislikes(message: Message, state: FSMContext):
         kb = main_menu(has_profile=bool(profile), distributed=False)
         return await message.answer("❌ Действие отменено", reply_markup=kb)
     if not message.text:
-        return await message.answer("❗ Только текст")
+        return await message.answer("❗ Только текст", reply_markup=cancel_menu())
     await state.update_data(dislikes=message.text)
-    await message.answer("Способ получения (почта / ozon / wb):")
+    await message.answer("Способ получения (почта / ozon / wb):", reply_markup=cancel_menu())
     await state.set_state(ProfileState.delivery)
 
 @router.message(ProfileState.delivery)
@@ -82,9 +84,9 @@ async def step_delivery(message: Message, state: FSMContext):
         kb = main_menu(has_profile=bool(profile), distributed=False)
         return await message.answer("❌ Действие отменено", reply_markup=kb)
     if not message.text:
-        return await message.answer("❗ Только текст")
+        return await message.answer("❗ Только текст", reply_markup=cancel_menu())
     await state.update_data(delivery=message.text)
-    await message.answer("Адрес доставки / пункт выдачи:")
+    await message.answer("Адрес доставки / пункт выдачи:", reply_markup=cancel_menu())
     await state.set_state(ProfileState.address)
 
 @router.message(ProfileState.address)
@@ -95,7 +97,7 @@ async def step_address(message: Message, state: FSMContext):
         kb = main_menu(has_profile=bool(profile), distributed=False)
         return await message.answer("❌ Действие отменено", reply_markup=kb)
     if not message.text:
-        return await message.answer("❗ Только текст")
+        return await message.answer("❗ Только текст", reply_markup=cancel_menu())
     data = await state.get_data()
     data["address"] = message.text
     await save_profile({
