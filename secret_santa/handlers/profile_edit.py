@@ -20,7 +20,13 @@ async def view_profile(cb: CallbackQuery):
     profile = await get_profile(cb.from_user.id)
 
     if profile[6] == 1:  # locked
-        return await cb.message.answer("⚠️ Анкета заблокирована. После распределения редактирование невозможно.")
+        return await cb.message.answer(
+            f"👤 Имя: {profile[1]}\n"
+            f"🎁 Хочу: {profile[2]}\n"
+            f"🚫 Не хочу: {profile[3]}\n"
+            f"📦 Доставка: {profile[4]}\n"
+            f"📍 Адрес: {profile[5]}\n\n"
+            "⚠️ Анкета заблокирована. После распределения редактирование невозможно.")
 
     if not profile:
         return await cb.message.answer("Анкета не найдена.")
