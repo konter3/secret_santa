@@ -9,6 +9,24 @@ from utils.text import CANCEL_TEXT
 
 router = Router()
 
+from keyboards.cancel import cancel_menu
+
+
+# --- Общая отмена ---
+@router.callback_query(F.data == "cancel")
+async def cancel_cb(cb: CallbackQuery, state: FSMContext):
+    await state.clear()
+    profile = await get_profile(cb.from_user.id)
+    kb = main_menu(has_profile=bool(profile), distributed=False)
+    await cb.message.answer("❌ Действие отменено", reply_markup=kb)
+
+@router.callback_query(F.data == "main_menu")
+async def main_menu_cb(cb: CallbackQuery, state: FSMContext):
+    await state.clear()
+    profile = await get_profile(cb.from_user.id)
+    kb = main_menu(has_profile=bool(profile), distributed=False)
+    await cb.message.answer("🏠 Главное меню", reply_markup=kb)
+
 # --- Создание анкеты ---
 @router.callback_query(F.data == "create_profile")
 async def start_profile(cb: CallbackQuery, state: FSMContext):
@@ -18,6 +36,12 @@ async def start_profile(cb: CallbackQuery, state: FSMContext):
 
 @router.message(ProfileState.name)
 async def step_name(message: Message, state: FSMContext):
+    if message.text.lower() in ["❌ отмена", "🏠 главное меню"]:
+        await state.clear()
+        profile = await get_profile(message.from_user.id)
+        kb = main_menu(has_profile=bool(profile), distributed=False)
+        return await message.answer("❌ Действие отменено", reply_markup=kb)
+
     if not message.text:
         return await message.answer("❗ Только текст")
     await state.update_data(name=message.text)
@@ -26,6 +50,11 @@ async def step_name(message: Message, state: FSMContext):
 
 @router.message(ProfileState.wishes)
 async def step_wishes(message: Message, state: FSMContext):
+    if message.text.lower() in ["❌ отмена", "🏠 главное меню"]:
+        await state.clear()
+        profile = await get_profile(message.from_user.id)
+        kb = main_menu(has_profile=bool(profile), distributed=False)
+        return await message.answer("❌ Действие отменено", reply_markup=kb)
     if not message.text:
         return await message.answer("❗ Только текст")
     await state.update_data(wishes=message.text)
@@ -34,6 +63,11 @@ async def step_wishes(message: Message, state: FSMContext):
 
 @router.message(ProfileState.dislikes)
 async def step_dislikes(message: Message, state: FSMContext):
+    if message.text.lower() in ["❌ отмена", "🏠 главное меню"]:
+        await state.clear()
+        profile = await get_profile(message.from_user.id)
+        kb = main_menu(has_profile=bool(profile), distributed=False)
+        return await message.answer("❌ Действие отменено", reply_markup=kb)
     if not message.text:
         return await message.answer("❗ Только текст")
     await state.update_data(dislikes=message.text)
@@ -42,6 +76,11 @@ async def step_dislikes(message: Message, state: FSMContext):
 
 @router.message(ProfileState.delivery)
 async def step_delivery(message: Message, state: FSMContext):
+    if message.text.lower() in ["❌ отмена", "🏠 главное меню"]:
+        await state.clear()
+        profile = await get_profile(message.from_user.id)
+        kb = main_menu(has_profile=bool(profile), distributed=False)
+        return await message.answer("❌ Действие отменено", reply_markup=kb)
     if not message.text:
         return await message.answer("❗ Только текст")
     await state.update_data(delivery=message.text)
@@ -50,6 +89,11 @@ async def step_delivery(message: Message, state: FSMContext):
 
 @router.message(ProfileState.address)
 async def step_address(message: Message, state: FSMContext):
+    if message.text.lower() in ["❌ отмена", "🏠 главное меню"]:
+        await state.clear()
+        profile = await get_profile(message.from_user.id)
+        kb = main_menu(has_profile=bool(profile), distributed=False)
+        return await message.answer("❌ Действие отменено", reply_markup=kb)
     if not message.text:
         return await message.answer("❗ Только текст")
     data = await state.get_data()
@@ -67,6 +111,10 @@ async def step_address(message: Message, state: FSMContext):
 @router.callback_query(F.data == "view_profile")
 async def view_profile(cb: CallbackQuery):
     profile = await get_profile(cb.from_user.id)
+
+    if profile[6] == 1:  # locked
+        return await cb.message.answer("⚠️ Анкета заблокирована. После распределения редактирование невозможно.")
+
     if not profile:
         return await cb.message.answer("Анкета не найдена.")
     text = (
@@ -80,5 +128,9 @@ async def view_profile(cb: CallbackQuery):
 
 @router.callback_query(F.data == "delete_profile")
 async def delete_profile_cb(cb: CallbackQuery):
+    profile = await get_profile(cb.from_user.id)
+    if profile[6] == 1:
+        return await cb.message.answer("⚠️ Невозможно удалить анкету после распределения.")
+
     await delete_profile(cb.from_user.id)
     await cb.message.answer("🗑 Анкета удалена", reply_markup=main_menu(False, False))

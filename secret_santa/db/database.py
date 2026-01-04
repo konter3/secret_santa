@@ -1,4 +1,4 @@
-import aiosqlite
+﻿import aiosqlite
 from config import DB_PATH
 
 async def init_db():
@@ -9,7 +9,7 @@ async def init_db():
             name TEXT,
             wishes TEXT,
             dislikes TEXT,
-            delivery_type TEXT,
+            delivery TEXT,
             address TEXT,
             locked INTEGER DEFAULT 0
         )
@@ -34,11 +34,32 @@ async def get_profile(user_id: int):
         return await cur.fetchone()
 
 async def save_profile(data: dict):
+    """
+    data = {
+        "user_id": ...,
+        "name": ...,
+        "wishes": ...,
+        "dislikes": ...,
+        "delivery": ...,
+        "address": ...
+    }
+    locked будет по умолчанию 0
+    """
     async with aiosqlite.connect(DB_PATH) as db:
         await db.execute("""
-        INSERT OR REPLACE INTO profiles VALUES (?, ?, ?, ?, ?, ?, 0)
-        """, tuple(data.values()))
+            INSERT OR REPLACE INTO profiles 
+            (user_id, name, wishes, dislikes, delivery, address)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (
+            data["user_id"],
+            data["name"],
+            data["wishes"],
+            data["dislikes"],
+            data["delivery"],
+            data["address"]
+        ))
         await db.commit()
+
 
 async def delete_profile(user_id: int):
     async with aiosqlite.connect(DB_PATH) as db:
