@@ -9,20 +9,33 @@ router = Router()
 from keyboards.cancel import cancel_menu
 from keyboards.main import main_menu
 from db.database import get_profile
+from config import ADMINS
 
 # --- Общая отмена ---
 @router.callback_query(F.data == "cancel")
 async def cancel_cb(cb: CallbackQuery, state: FSMContext):
     await state.clear()
     profile = await get_profile(cb.from_user.id)
-    kb = main_menu(has_profile=bool(profile), distributed=False)
+    is_admin = cb.from_user.id in ADMINS
+
+    kb = main_menu(
+        has_profile=bool(profile),
+        distributed=False,
+        is_admin=is_admin
+    )
     await cb.message.answer("❌ Действие отменено", reply_markup=kb)
 
 @router.callback_query(F.data == "main_menu")
 async def main_menu_cb(cb: CallbackQuery, state: FSMContext):
     await state.clear()
     profile = await get_profile(cb.from_user.id)
-    kb = main_menu(has_profile=bool(profile), distributed=False)
+    is_admin = cb.from_user.id in ADMINS
+
+    kb = main_menu(
+        has_profile=bool(profile),
+        distributed=False,
+        is_admin=is_admin
+    )
     await cb.message.answer("🏠 Главное меню", reply_markup=kb)
 
 @router.callback_query(F.data == "send_track")
