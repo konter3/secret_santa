@@ -17,12 +17,12 @@ async def main():
     dp.message.middleware(ChatAntiSpamMiddleware())
     dp.callback_query.middleware(ChatAntiSpamMiddleware())
     dp.update.middleware(LoggingMiddleware())
-
+    dp.include_router(chat.router)
     dp.include_router(start.router)
     dp.include_router(profile.router)
     dp.include_router(profile_edit.router)
     dp.include_router(admin.router)
-    dp.include_router(chat.router)
+    
     dp.include_router(tracking.router)
 
     await dp.start_polling(bot)
