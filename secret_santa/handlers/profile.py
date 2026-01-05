@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 from keyboards.profile import profile_actions
 from keyboards.main import main_menu
 from keyboards.cancel import cancel_menu
-from db.database import save_profile, get_profile, delete_profile
+from db.database import save_profile, get_profile, delete_profile, check_distributed
 from states.profile import ProfileState
 from utils.text import CANCEL_TEXT
 from config import ADMINS
@@ -21,11 +21,14 @@ async def cancel_cb(cb: CallbackQuery, state: FSMContext):
     profile = await get_profile(cb.from_user.id)
     is_admin = cb.from_user.id in ADMINS
 
+    distributed = await check_distributed()
+
     kb = main_menu(
         has_profile=bool(profile),
-        distributed=False,
+        distributed=distributed,
         is_admin=is_admin
     )
+
     await cb.message.answer("❌ Действие отменено", reply_markup=kb)
 
 @router.callback_query(F.data == "main_menu")
@@ -35,9 +38,11 @@ async def main_menu_cb(cb: CallbackQuery, state: FSMContext):
 
     is_admin = cb.from_user.id in ADMINS
 
+    distributed = await check_distributed()
+
     kb = main_menu(
         has_profile=bool(profile),
-        distributed=False,
+        distributed=distributed,
         is_admin=is_admin
     )
     await cb.message.answer("🏠 Главное меню", reply_markup=kb)
@@ -56,9 +61,11 @@ async def step_name(message: Message, state: FSMContext):
         profile = await get_profile(message.from_user.id)
         is_admin = message.from_user.id in ADMINS
 
+        distributed = await check_distributed()
+
         kb = main_menu(
             has_profile=bool(profile),
-            distributed=False,
+            distributed=distributed,
             is_admin=is_admin
         )
         return await message.answer("❌ Действие отменено", reply_markup=kb)
@@ -76,9 +83,11 @@ async def step_wishes(message: Message, state: FSMContext):
         profile = await get_profile(message.from_user.id)
         is_admin = message.from_user.id in ADMINS
 
+        distributed = await check_distributed()
+
         kb = main_menu(
             has_profile=bool(profile),
-            distributed=False,
+            distributed=distributed,
             is_admin=is_admin
         )
         return await message.answer("❌ Действие отменено", reply_markup=kb)
@@ -95,9 +104,11 @@ async def step_dislikes(message: Message, state: FSMContext):
         profile = await get_profile(message.from_user.id)
         is_admin = message.from_user.id in ADMINS
 
+        distributed = await check_distributed()
+
         kb = main_menu(
             has_profile=bool(profile),
-            distributed=False,
+            distributed=distributed,
             is_admin=is_admin
         )
         return await message.answer("❌ Действие отменено", reply_markup=kb)
@@ -114,9 +125,11 @@ async def step_delivery(message: Message, state: FSMContext):
         profile = await get_profile(message.from_user.id)
         is_admin = message.from_user.id in ADMINS
 
+        distributed = await check_distributed()
+
         kb = main_menu(
             has_profile=bool(profile),
-            distributed=False,
+            distributed=distributed,
             is_admin=is_admin
         )
         return await message.answer("❌ Действие отменено", reply_markup=kb)
@@ -133,9 +146,11 @@ async def step_address(message: Message, state: FSMContext):
         profile = await get_profile(message.from_user.id)
         is_admin = message.from_user.id in ADMINS
 
+        distributed = await check_distributed()
+
         kb = main_menu(
             has_profile=bool(profile),
-            distributed=False,
+            distributed=distributed,
             is_admin=is_admin
         )
         return await message.answer("❌ Действие отменено", reply_markup=kb)
@@ -153,9 +168,11 @@ async def step_address(message: Message, state: FSMContext):
     profile = await get_profile(message.from_user.id)
     is_admin = message.from_user.id in ADMINS
 
+    distributed = await check_distributed()
+
     kb = main_menu(
         has_profile=bool(profile),
-        distributed=False,
+        distributed=distributed,
         is_admin=is_admin
     )
     await message.answer("✅ Анкета создана", reply_markup=kb)

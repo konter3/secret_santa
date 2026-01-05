@@ -1,4 +1,5 @@
-﻿from aiogram import Router, F, Bot
+﻿# handlers/admin.py
+from aiogram import Router, F, Bot
 from aiogram.types import CallbackQuery
 from config import ADMINS
 from db.database import count_profiles

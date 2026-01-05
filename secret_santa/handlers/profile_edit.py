@@ -5,10 +5,12 @@ from aiogram.fsm.context import FSMContext
 from keyboards.profile import profile_actions
 from keyboards.main import main_menu
 from keyboards.cancel import cancel_menu
-from db.database import save_profile, get_profile, delete_profile
+from db.database import save_profile, get_profile, delete_profile, check_distributed
 from states.profile import ProfileState
 from utils.text import CANCEL_TEXT
 from keyboards.profile_edit import edit_profile_menu
+from config import ADMINS
+
 
 router = Router()
 
@@ -118,4 +120,15 @@ async def delete_profile_cb(cb: CallbackQuery):
         return await cb.message.answer("⚠️ Невозможно удалить анкету после распределения.")
 
     await delete_profile(cb.from_user.id)
-    await cb.message.answer("🗑 Анкета удалена", reply_markup=main_menu(False, False))
+    distributed = await check_distributed()
+    is_admin = cb.from_user.id in ADMINS
+
+    await cb.message.answer(
+        "🗑 Анкета удалена",
+        reply_markup=main_menu(
+            has_profile=False,
+            distributed=distributed,
+            is_admin=is_admin
+        )
+    )
+

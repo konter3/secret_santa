@@ -3,8 +3,8 @@ import logging
 from aiogram import Bot, Dispatcher
 from config import BOT_TOKEN
 from db.database import init_db
-from handlers import profile_edit, start, profile, admin, chat, tracking
-from middlewares.chat_antispam import ChatAntiSpamMiddleware
+from handlers import profile_edit, start, profile, admin, tracking
+
 from middlewares.logging import LoggingMiddleware
 
 async def main():
@@ -14,10 +14,8 @@ async def main():
     bot = Bot(BOT_TOKEN)
     dp = Dispatcher()
 
-    dp.message.middleware(ChatAntiSpamMiddleware())
-    dp.callback_query.middleware(ChatAntiSpamMiddleware())
     dp.update.middleware(LoggingMiddleware())
-    dp.include_router(chat.router)
+
     dp.include_router(start.router)
     dp.include_router(profile.router)
     dp.include_router(profile_edit.router)
