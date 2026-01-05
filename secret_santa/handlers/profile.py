@@ -7,7 +7,7 @@ from keyboards.main import main_menu
 from keyboards.cancel import cancel_menu
 from db.database import save_profile, get_profile, delete_profile, check_distributed
 from states.profile import ProfileState
-from utils.text import CANCEL_TEXT
+from utils.text import WELCOME_TEXT
 from config import ADMINS
 router = Router()
 
@@ -51,6 +51,7 @@ async def main_menu_cb(cb: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == "create_profile")
 async def start_profile(cb: CallbackQuery, state: FSMContext):
     await state.clear()
+    await cb.message.answer(WELCOME_TEXT)
     await cb.message.answer("Введите ваше имя:", reply_markup=cancel_menu())
     await state.set_state(ProfileState.name)
 

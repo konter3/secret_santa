@@ -2,6 +2,7 @@
 from aiogram import Router, F
 from aiogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
 from db.database import get_profile, check_distributed, get_pair_by_giver, get_pair_by_receiver
+from utils.text import REPEAT_TEXT
 
 router = Router()
 
@@ -15,7 +16,7 @@ async def start_command(message: Message):
             [InlineKeyboardButton(text="➕ Создать анкету", callback_data="create_profile")]
         ])
         await message.answer(
-            "Привет! 👋\nУ тебя ещё нет анкеты. Создай её, чтобы участвовать в Secret Santa.",
+            "Привет! 👋\nУ тебя ещё нет анкеты. Создай её, чтобы участвовать в Тайном Санте.",
             reply_markup=kb
         )
         return
@@ -40,6 +41,7 @@ async def start_command(message: Message):
         [InlineKeyboardButton(text="📍 Посмотреть мой трек-номер", callback_data="view_track")]
     ])
 
+    await message.answer(REPEAT_TEXT)
     text = f"Привет, {profile[1]}! 🎅\n\n"
 
     if pair_as_santa:
@@ -50,7 +52,8 @@ async def start_command(message: Message):
                 f"👤 Имя: {receiver_profile[1]}\n"
                 f"🎁 Хочу: {receiver_profile[2]}\n"
                 f"🚫 Не хочу: {receiver_profile[3]}\n"
-                f"📦 Доставка: {receiver_profile[4]}"
+                f"📦 Доставка: {receiver_profile[4]}\n"
+                f"📍 Адрес: {profile[5]}"
             )
     elif pair_as_receiver:
         santa_profile = await get_profile(pair_as_receiver["giver_id"])
@@ -60,7 +63,8 @@ async def start_command(message: Message):
                 f"👤 Имя: {santa_profile[1]}\n"
                 f"🎁 Хочу: {santa_profile[2]}\n"
                 f"🚫 Не хочу: {santa_profile[3]}\n"
-                f"📦 Доставка: {santa_profile[4]}"
+                f"📦 Доставка: {santa_profile[4]}\n"
+                f"📍 Адрес: {profile[5]}"
             )
     else:
         text += "⚠️ Пара не найдена."

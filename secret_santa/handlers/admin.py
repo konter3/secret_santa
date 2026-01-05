@@ -7,6 +7,7 @@ from services.santa_distribution import distribute
 from keyboards.admin import admin_menu
 from keyboards.main import main_menu
 from db.database import get_profile
+from utils.text import REPEAT_TEXT
 
 router = Router()
 
@@ -42,7 +43,8 @@ async def distribute_cb(cb: CallbackQuery, bot: Bot):
             f"👤 Имя: {profile[1]}\n"
             f"🎁 Хочу: {profile[2]}\n"
             f"🚫 Не хочу: {profile[3]}\n"
-            f"📦 Доставка: {profile[4]}"
+            f"📦 Доставка: {profile[4]}\n"
+            f"📍 Адрес: {profile[5]}"
         )
 
         await bot.send_message(
