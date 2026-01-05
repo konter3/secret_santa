@@ -1,47 +1,38 @@
-﻿# handlers/start.py
-from aiogram import Router, F
+﻿from aiogram import Router, F
 from aiogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
 from db.database import get_profile, check_distributed, get_pair_by_giver, get_pair_by_receiver
-from utils.text import REPEAT_TEXT
+from utils.text import WELCOME_TEXT, REPEAT_TEXT
+from config import ADMINS
+from keyboards.main import main_menu
 
 router = Router()
 
-@router.message(F.text == "/start")  # правильный синтаксис для 3.x
+@router.message(F.text == "/start")
 async def start_command(message: Message):
     user_id = message.from_user.id
     profile = await get_profile(user_id)
+    is_admin = user_id in ADMINS
 
-    if not profile:
-        kb = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="➕ Создать анкету", callback_data="create_profile")]
-        ])
-        await message.answer(
-            "Привет! 👋\nУ тебя ещё нет анкеты. Создай её, чтобы участвовать в Тайном Санте.",
-            reply_markup=kb
-        )
-        return
-
+    # Проверяем, было ли распределение
     distributed = await check_distributed()
 
-    if not distributed:
-        kb = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="👤 Моя анкета", callback_data="view_profile")]
-        ])
-        await message.answer(
-            f"Привет, {profile[1]}! 👋\nВаша анкета уже сохранена.",
-            reply_markup=kb
-        )
+    # Составляем клавиатуру через функцию
+    kb = main_menu(has_profile=bool(profile), distributed=distributed, is_admin=is_admin)
+
+    # Если анкеты нет — выводим приветствие и кнопку создать
+    if not profile:
+        await message.answer(WELCOME_TEXT, reply_markup=kb)
         return
 
+    # Анкета есть, но распределение еще не было
+    if not distributed:
+        await message.answer(f"Привет, {profile[1]}! 👋\nВаша анкета уже сохранена.", reply_markup=kb)
+        return
+
+    # Если распределение есть — показываем информацию о получателе
     pair_as_santa = await get_pair_by_giver(user_id)
     pair_as_receiver = await get_pair_by_receiver(user_id)
 
-    kb = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="📦 Отправить трек-номер", callback_data="send_track")],
-        [InlineKeyboardButton(text="📍 Посмотреть мой трек-номер", callback_data="view_track")]
-    ])
-
-    await message.answer(REPEAT_TEXT)
     text = f"Привет, {profile[1]}! 🎅\n\n"
 
     if pair_as_santa:
@@ -53,7 +44,7 @@ async def start_command(message: Message):
                 f"🎁 Хочу: {receiver_profile[2]}\n"
                 f"🚫 Не хочу: {receiver_profile[3]}\n"
                 f"📦 Доставка: {receiver_profile[4]}\n"
-                f"📍 Адрес: {profile[5]}"
+                f"📍 Адрес: {receiver_profile[5]}"
             )
     elif pair_as_receiver:
         santa_profile = await get_profile(pair_as_receiver["giver_id"])
@@ -69,4 +60,5 @@ async def start_command(message: Message):
     else:
         text += "⚠️ Пара не найдена."
 
+    await message.answer(REPEAT_TEXT)
     await message.answer(text, reply_markup=kb)

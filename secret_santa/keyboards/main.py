@@ -1,4 +1,5 @@
-﻿from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+﻿# keyboards/main.py
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 def main_menu(has_profile: bool, distributed: bool, is_admin: bool = False):
     """
