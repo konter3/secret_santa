@@ -41,8 +41,8 @@ async def start_command(message: Message):
             text += (
                 "🎁 Ваш получатель:\n"
                 f"👤 Имя: {receiver_profile[1]}\n"
-                f"🎁 Хочу: {receiver_profile[2]}\n"
-                f"🚫 Не хочу: {receiver_profile[3]}\n"
+                f"🎁 Он хочет: {receiver_profile[2]}\n"
+                f"🚫 Что не стоит дарить: {receiver_profile[3]}\n"
                 f"📦 Доставка: {receiver_profile[4]}\n"
                 f"📍 Адрес: {receiver_profile[5]}"
             )

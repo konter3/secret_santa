@@ -57,7 +57,7 @@ async def track_input(message: Message, state: FSMContext):
     # Отправляем получателю
     await message.bot.send_message(
         pair["receiver_id"],
-        f"📦 Вам отправлен трек-номер: {message.text}"
+        f"📦 Вам отправлен трек-номер для получения подарка: {message.text}"
     )
     await state.clear()
     await message.answer("✅ Трек-номер отправлен", reply_markup=main_menu(has_profile=True, distributed=True))
@@ -70,4 +70,4 @@ async def view_track_cb(cb: CallbackQuery):
     if not pair or not pair["track_number"]:
         return await cb.message.answer("⚠️ Санта ещё не отправил подарок")
 
-    await cb.message.answer(f"📦 Ваш трек-номер: {pair['track_number']}", reply_markup=main_menu(has_profile=True, distributed=True))
+    await cb.message.answer(f"📦 Ваш трек-номер для получения подарка: {pair['track_number']}", reply_markup=main_menu(has_profile=True, distributed=True))

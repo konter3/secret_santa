@@ -72,7 +72,7 @@ async def step_name(message: Message, state: FSMContext):
     if not message.text:
         return await message.answer("❗ Только текст", reply_markup=cancel_menu())
     await state.update_data(name=message.text)
-    await message.answer("Что бы вы хотели получить?", reply_markup=cancel_menu())
+    await message.answer("Что бы вы хотели получить в подарок?", reply_markup=cancel_menu())
     await state.set_state(ProfileState.wishes)
 
 @router.message(ProfileState.wishes)
@@ -93,7 +93,7 @@ async def step_wishes(message: Message, state: FSMContext):
     if not message.text:
         return await message.answer("❗ Только текст", reply_markup=cancel_menu())
     await state.update_data(wishes=message.text)
-    await message.answer("Что НЕ хотели бы получить?", reply_markup=cancel_menu())
+    await message.answer("Что дарить не стоит?", reply_markup=cancel_menu())
     await state.set_state(ProfileState.dislikes)
 
 @router.message(ProfileState.dislikes)
